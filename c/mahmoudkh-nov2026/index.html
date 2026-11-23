@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nezamy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&amp;family=Readex+Pro:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3f6f4; --surface:#ffffff; --ink:#15231d; --muted:#5d6f66; --line:#d6dfda;
+  --accent:#0f7a55; --accent-ink:#ffffff; --accent-soft:#dff1e9;
+  --ok:#0f7a55; --ok-soft:#dff1e9; --warn:#a85a00; --warn-soft:#fbead1;
+  color-scheme:light;
+  --display:"Readex Pro","IBM Plex Sans Arabic",Tahoma,sans-serif;
+  --body:"IBM Plex Sans Arabic",Tahoma,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#101614; --surface:#18211e; --ink:#e8f0ec; --muted:#9bb0a6; --line:#2c3a34;
+    --accent:#3fc493; --accent-ink:#06261a; --accent-soft:#17382c;
+    --ok:#3fc493; --ok-soft:#17382c; --warn:#f0b05a; --warn-soft:#3a2a12;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#101614; --surface:#18211e; --ink:#e8f0ec; --muted:#9bb0a6; --line:#2c3a34;
+  --accent:#3fc493; --accent-ink:#06261a; --accent-soft:#17382c;
+  --ok:#3fc493; --ok-soft:#17382c; --warn:#f0b05a; --warn-soft:#3a2a12;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6}
+.wrap{max-width:760px;margin:0 auto;padding:20px 16px 120px;display:flex;flex-direction:column;gap:18px}
+h1{font-family:var(--display);font-size:1.5rem;margin:0;text-wrap:balance}
+.sub{color:var(--muted);margin:4px 0 0;font-size:.95rem}
+h2{font-family:var(--display);font-size:1.05rem;margin:0}
+[hidden]{display:none!important}
+.tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.tab{font:600 1rem var(--body);padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.link{background:none;border:0;color:var(--accent);font:500 .9rem var(--body);cursor:pointer;padding:4px;text-decoration:underline}
+.cat{display:flex;flex-direction:column;gap:6px}
+.cat-name{font-size:.8rem;color:var(--muted);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:500 .95rem var(--body);padding:8px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:600}
+.chip[aria-pressed="true"]::before{content:"✓ ";color:var(--accent)}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.status{font-weight:600}
+.hint{font-size:.85rem;color:var(--muted);margin-top:2px;font-weight:400}
+.cards{display:flex;flex-direction:column;gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.card.top{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.card.picked{box-shadow:0 0 0 2px var(--accent)}
+.card-head{display:flex;align-items:center;gap:12px}
+.rank{flex:none;width:32px;height:32px;border-radius:50%;background:var(--bg);color:var(--muted);display:grid;place-items:center;font:700 .95rem var(--display);font-variant-numeric:tabular-nums}
+.top .rank{background:var(--accent);color:var(--accent-ink)}
+.title{min-width:0;flex:1}
+.card h3{font-family:var(--display);font-size:1.08rem;margin:0;text-wrap:balance}
+.best{font-size:.76rem;font-weight:600;color:var(--accent)}
+.pct{flex:none;text-align:end;font:700 1.25rem var(--display);color:var(--accent);font-variant-numeric:tabular-nums;line-height:1.1}
+.pct small{display:block;font:500 .7rem var(--body);color:var(--muted)}
+.bar{height:6px;border-radius:3px;background:var(--bg);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:3px}
+.meta{font-size:.88rem;color:var(--muted)}
+.meta .ok{color:var(--ok);font-weight:600}
+.meta .warn{color:var(--warn);font-weight:600}
+.items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.items li{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--line)}
+.items li:last-child{border-bottom:0}
+.grams{font-family:var(--display);font-weight:700;font-size:1.1rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.grams small{font:500 .75rem var(--body);color:var(--muted)}
+.kcal{color:var(--muted);font-size:.82rem;font-variant-numeric:tabular-nums;white-space:nowrap;min-width:70px;text-align:end}
+.miss .nm,.miss .grams{color:var(--muted)}
+.tag{font-size:.72rem;font-weight:600;background:var(--warn-soft);color:var(--warn);border-radius:6px;padding:1px 6px;margin-inline-start:6px;white-space:nowrap}
+.idea{font-size:.92rem;color:var(--muted)}
+.idea b{color:var(--ink);font-weight:600}
+.note{font-size:.82rem;color:var(--warn)}
+.macro{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums;padding-top:12px;border-top:1px solid var(--line)}
+.macro b{color:var(--ink);font-family:var(--display)}
+.macro .k b{color:var(--accent);font-size:1rem}
+.wrap{max-width:800px;padding:18px clamp(14px,4vw,28px) 48px;gap:16px}
+.brandbar,.day-head,.section-line,.history-head,.account-line,.card-tools{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brandbar{border-bottom:1px solid var(--line);padding-bottom:12px}
+.brand{font:700 1.35rem var(--display);letter-spacing:-.045em;color:var(--accent)}
+h1{font-size:clamp(1.4rem,4vw,1.9rem)}
+.intro{margin-top:16px}.sub{max-width:64ch;font-size:.9rem}
+.theme-btn,.btn,.del{min-height:44px;font:600 .88rem var(--body);border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);padding:6px 13px;cursor:pointer}
+.btn{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.ghost,.del{background:transparent;color:var(--muted)}
+.del{border:0;padding:4px 8px}
+.day-summary{background:linear-gradient(115deg,#124339,#155c46);color:#fff;border-radius:20px;padding:16px 20px}
+.day-head{align-items:flex-start}.day-head h2{font-size:1.15rem}.day-head time,.day-total small,.day-slot span{color:#d0e9db;font-size:.8rem}
+.day-total{text-align:end}.day-total b{font:700 1.75rem/1.2 var(--display);font-variant-numeric:tabular-nums}.day-total small{display:block}
+.day-meals{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid #ffffff36;padding-top:10px;margin-top:12px;gap:12px}
+.day-slot{min-width:0}.day-slot + .day-slot{border-inline-start:1px solid #ffffff36;padding-inline-start:14px}.day-slot b{display:block;font-size:.95rem;overflow-wrap:anywhere}
+.tabs{position:sticky;top:0;z-index:2;gap:4px;background:var(--bg);padding:5px;border:1px solid var(--line);border-radius:14px}
+.tab{border:0;background:transparent;min-height:44px;padding:6px;border-radius:10px}
+.filter{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:0 16px}
+summary{cursor:pointer}summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.filter>summary,.meal-details>summary{list-style:none;display:flex;align-items:center;gap:8px;min-height:48px;font-weight:600}
+summary::-webkit-details-marker{display:none}
+.filter>summary::after,.meal-details>summary::after{content:"";width:.44em;height:.44em;flex:none;border:solid currentColor;border-width:0 2px 2px 0;transform:rotate(45deg);margin-inline-start:auto}
+details[open]>summary::after{transform:rotate(225deg)}
+.filter-count{color:var(--accent);font-size:.83rem}.filter-body{border-top:1px solid var(--line);padding-block:12px}
+.chip,.link{min-height:44px}
+.cards{gap:10px}.card{padding:15px 16px;gap:8px}.card.top,.card.picked{border-color:var(--accent);box-shadow:none}
+.meal-energy{font-size:.86rem;color:var(--muted)}.meal-energy b{color:var(--accent);font-family:var(--display)}
+.pick{font:600 .9rem var(--body);min-height:44px;padding:7px 12px;border-radius:10px;border:1px solid var(--line);background:var(--accent-soft);color:var(--accent);cursor:pointer}
+.pick[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.card-tools{flex-wrap:wrap}.meal-details{border-top:1px solid var(--line)}.meal-details summary{font-size:.87rem;color:var(--muted)}
+.meal-details[open] .idea{margin:10px 0}.macro{margin-bottom:6px}
+.banner,.account-line{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.banner{background:var(--accent-soft);padding:12px;border-radius:12px;font-size:.9rem}
+.account-line b{overflow-wrap:anywhere;font-weight:600}.hint[role=status]{margin:0}
+.stats{display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--muted);font-size:.88rem}.stats b{color:var(--ink)}
+#hist-table{display:grid;gap:18px}
+.log-day{min-width:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface)}
+.history-head{background:var(--accent-soft);padding:4px 12px;border-bottom:1px solid var(--line)}
+.log-day h3{margin:0;font:600 .97rem var(--body);color:var(--ink)}
+.history-head .del{font-size:.78rem;color:var(--ink);flex:none}
+.log-day table{width:100%;table-layout:fixed;border-collapse:collapse;text-align:start}
+.log-day th,.log-day td{text-align:start;padding:6px 12px;vertical-align:top;overflow-wrap:anywhere}
+.log-day th{color:var(--muted);font-size:.82rem;padding-top:12px}
+.log-day td{padding-top:0;padding-bottom:14px;font-weight:600}
+.log-day :is(th,td)+:is(th,td){border-inline-start:1px solid var(--line)}
+.log-day td small{display:block;color:var(--muted);font-size:.82rem;font-weight:400;margin-top:3px}
+.log-day td.missing{color:var(--muted);font-weight:400}
+.log-total{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--bg);border-top:1px solid var(--line);padding:8px 12px;font-size:.86rem}
+.log-total b{color:var(--accent);font-variant-numeric:tabular-nums}
+.empty{color:var(--muted);padding:18px;text-align:center;background:var(--bg);border-radius:12px}
+.auth-error{color:var(--warn);font-size:.88rem}
+@media(max-width:420px){.kcal{min-width:0}.items li{gap:7px}.wrap{gap:12px}.day-summary{padding:14px 16px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brandbar"><span class="brand" lang="en" dir="ltr">Nezamy</span><button class="theme-btn" id="theme" type="button">المظهر</button></div>
+    <div class="intro"><h1>خطة وجباتي</h1>
+      <p class="sub">خطة د. أحمد رويس · حوالي 500 سعر للوجبة. اختار أي وجبتين من الوجبات كلها.</p>
+    </div>
+  </header>
+  <section class="day-summary" aria-labelledby="day-title">
+    <div class="day-head"><div><h2 id="day-title">وجبات النهارده</h2><time id="day-date"></time></div>
+      <div class="day-total"><b id="day-sum">0</b><small>إجمالي السعرات</small></div></div>
+    <div class="day-meals"><div class="day-slot"><span>وجبة 1</span><b id="day-b">لسه ما اخترتش</b></div>
+      <div class="day-slot"><span>وجبة 2</span><b id="day-l">لسه ما اخترتش</b></div></div>
+  </section>
+  <nav class="tabs" role="tablist" aria-label="وجباتي وسجلي">
+    <button class="tab" type="button" role="tab" id="tab-b" data-type="b" aria-selected="true">وجبة 1</button>
+    <button class="tab" type="button" role="tab" id="tab-l" data-type="l" aria-selected="false">وجبة 2</button>
+    <button class="tab" type="button" role="tab" id="tab-h" data-type="h" aria-selected="false">السجل</button>
+  </nav>
+  <details class="filter" id="pick-panel" open="">
+    <summary>رتّب الوجبات حسب المتوفر عندك <span class="filter-count" id="filter-count"></span></summary>
+    <div class="filter-body"><div id="picker"></div><button class="link" id="clear" type="button">امسح اختيارات الأصناف</button></div>
+  </details>
+  <div class="status" id="status" aria-live="polite"></div>
+  <div id="results"></div>
+  <section class="panel" id="history" hidden="" aria-labelledby="hist-title">
+    <h2 id="hist-title">سجل وجباتي</h2>
+    <div class="hint" id="hist-where" role="status"></div>
+    <div class="banner" id="signin-banner" hidden=""><span>افتح سجلك من أي جهاز بنفس الحساب.</span>
+      <button type="button" class="btn" data-signin="">دخول بجوجل</button></div>
+    <div class="account-line" id="acct" hidden=""><b id="account-email" dir="auto"></b><button type="button" class="btn ghost" data-signout="">خروج</button></div>
+    <div class="auth-error" id="auth-error" role="status" hidden=""></div>
+    <div class="stats" id="hist-stats"></div>
+    <div id="hist-table"></div>
+  </section>
+</div>
+
+<script>
+// ---- البيانات منقولة من ملف الدايت بلان (13 فطار و13 غداء) ----
+const ING = {
+  eggs:["بيض بلدي","p"], fava:["فول مسلوق","p"], chickpeas:["حمص مسلوق","p"], tuna:["تونة","p"],
+  chicken:["صدر دجاج","p"], beef:["لحم بقري مطهي","p"], tilapia:["سمك بلطي","p"], kofta:["كفتة","p"],
+  burger:["برجر لحم","p"], liver:["كبدة","p"], pigeon:["حمام مطهي","p"], duck:["صدر بط مطهي","p"],
+  bread:["عيش بلدي (خبز بني كامل)","c"], potato:["بطاطس مسلوقة","c"], rice:["أرز أبيض مسلوق","c"],
+  pasta:["مكرونة مسلوقة","c"], oats:["شوفان","c"], creamrice:["دقيق أرز مطحون","c"], corn:["ذرة مسلوقة","c"],
+  pepper:["فلفل ألوان","v"], carrot:["جزر","v"], cucumber:["خيار","v"], tomato:["طماطم","v"],
+  eggplant:["باذنجان مشوي","v"], onion:["بصل","v"], mushroom:["مشروم","v"], greenbeans:["فاصوليا خضراء","v"], banana:["موز","v"],
+  oil:["زيت زيتون","x"], tpaste:["صلصة طماطم","x"], sugar:["سكر أبيض","x"], cocoa:["مسحوق كاكاو","x"],
+  almondmilk:["حليب لوز","x"], coconutmilk:["حليب جوز هند","x"],
+  lentil:["شوربة عدس","r"], hawawshy:["حواوشي","r"], koshary:["كشري","r"], bechamel:["مكرونة بالبشاميل","r"], cookedpotato:["بطاطس مطبوخة","r"]
+};
+const CATS = [["p","بروتين وبقوليات"],["c","نشويات"],["v","خضار وفاكهة"],["x","إضافات"],["r","أكلات جاهزة"]];
+
+// صنف: [id, جرام, سعرات, بروتين, كارب, دهون, ألياف]
+const OIL=["oil",10,88.4,0,0,10,0], BR90=["bread",90,239.4,8.1,49.5,2.34,6.66], BR70=["bread",70,186.2,6.3,38.5,1.82,5.18],
+      RICE=["rice",200,258,5.32,55.8,0.56,0.8], CUC=["cucumber",100,15,0.65,3.63,0.11,0.5], CAR100=["carrot",100,41,0.93,9.58,0.24,2.8],
+      CAR70=["carrot",70,28.7,0.65,6.71,0.17,1.96], SUG=["sugar",20,77.8,0,19.92,0,0], ONI=["onion",30,12,0.33,2.7,0.03,0.51],
+      TP=["tpaste",100,82,4,19,0,4], MUSH=["mushroom",50,11,1.54,1.64,0.17,0.5], PEP=["pepper",50,26,0.99,6.03,0.03,2],
+      PASTA125=["pasta",125,197.5,7.5,38.75,1.25,2.5], EGG50=["eggs",50,73.5,6.29,0.39,4.97,0], CHK=["chicken",150,247.5,45,0,6,0];
+
+const MEALS = [
+ {id:"b1",t:"b",name:"بيض بالفلفل الألوان",idea:"أومليت بالفلفل الألوان في زيت الزيتون، مع العيش.",items:[["eggs",125,153.75,15.72,0.96,12.43,0],OIL,BR90,PEP]},
+ {id:"b2",t:"b",name:"بطاطس مسلوقة وجزر",idea:"بطاطس مسلوقة عليها زيت الزيتون وجنبها جزر مبشور، مع العيش.",items:[["potato",150,154.5,2.71,29.28,3.36,2.55],OIL,BR90,CAR100]},
+ {id:"b3",t:"b",name:"شوفان بالكاكاو",idea:"الشوفان يتسوى في حليب اللوز مع الكاكاو ويتحلى بالسكر.",items:[["oats",50,173.5,7,28.5,3.5,5],["almondmilk",250,62.5,1,8.25,2.5,1],SUG,["cocoa",50,207.5,11.5,7,10.75,16.75]]},
+ {id:"b4",t:"b",name:"فول وسلطة",idea:"فول بزيت الزيتون مع سلطة خيار وطماطم والعيش.",items:[["fava",150,165,11.4,29.55,0.6,8.1],OIL,BR90,CUC,["tomato",40,7.2,0.35,1.57,0.08,0.48]]},
+ {id:"b5",t:"b",name:"مهلبية أرز بالموز",idea:"دقيق الأرز يتسوى في حليب جوز الهند والسكر وعليه الموز مقطع.",items:[["creamrice",50,177,3.75,40,1.4,0.65],["banana",200,178,2.18,45.68,0.66,5.2],["coconutmilk",250,62.5,1,8.25,2.5,1],SUG]},
+ {id:"b6",t:"b",name:"حمص وباذنجان مشوي",idea:"حمص بزيت الزيتون مع الباذنجان المشوي والعيش، أو اهرسهم سوا زي المتبل.",items:[["chickpeas",100,164,8.9,27.42,2.6,8],OIL,BR90,["eggplant",100,25,1,6,0.2,3]]},
+ {id:"b7",t:"b",name:"شوربة عدس",idea:"شوربة العدس مع العيش محمص.",items:[["lentil",400,409.5,18.24,77.86,3.7,19.05],["bread",30,79.8,2.7,16.5,0.78,2.22]]},
+ {id:"b8",t:"b",name:"بيض وبطاطس مسلوقة",idea:"بيضة مسلوقة مع بطاطس مسلوقة بزيت الزيتون وخيار، مع العيش.",items:[EGG50,["potato",100,103,1.81,19.52,2.24,1.7],BR90,CUC,OIL]},
+ {id:"b9",t:"b",name:"تونة وخضار",idea:"ساندوتش تونة مع خيار وجزر.",items:[["tuna",100,205,21,0,13,0],BR90,CUC,CAR100]},
+ {id:"b10",t:"b",name:"بيض وأرز بالصلصة",idea:"أرز بالصلصة والبصل وعليه البيض مسلوق.",items:[["eggs",100,147,12.58,0.77,9.94,0],RICE,ONI,TP]},
+ {id:"b11",t:"b",name:"فول بالبيض",idea:"فول بالبيض وزيت الزيتون مع العيش.",items:[EGG50,["fava",100,110,7.6,19.7,0.4,5.4],BR90,OIL]},
+ {id:"b12",t:"b",name:"حواوشي",idea:"حواوشي جاهز، اوزن 200 جرام بس.",items:[["hawawshy",200,523.5,26.55,38.5,29.32,5.18]]},
+ {id:"b13",t:"b",name:"سلطة مكرونة بالتونة",idea:"مكرونة مسلوقة مع التونة والذرة والبصل وزيت الزيتون.",items:[["tuna",50,99,14.5,0,4,0],["pasta",100,158,6,31,1,2],ONI,["corn",50,43,1.61,9.51,0.59,1.35],["oil",20,176.8,0,0,20,0]]},
+
+ {id:"l1",t:"l",name:"فراخ ومكرونة بالصلصة",idea:"مكرونة بالصلصة مع صدور فراخ مشوية.",items:[CHK,PASTA125,TP]},
+ {id:"l2",t:"l",name:"فراخ وأرز بالمشروم",idea:"صدور فراخ مشوية بالمشروم مع أرز أبيض.",items:[CHK,RICE,MUSH]},
+ {id:"l3",t:"l",name:"لحمة وأرز",idea:"لحمة مسلوقة أو مشوية مع أرز أبيض.",items:[["beef",100,250,25,0,13,0],RICE]},
+ {id:"l4",t:"l",name:"سمك بلطي وأرز",idea:"سمك بلطي مشوي مع أرز أبيض.",items:[["tilapia",200,256,52,0,6,0],RICE]},
+ {id:"l5",t:"l",name:"كفتة وأرز",idea:"كفتة مشوية مع أرز أبيض.",items:[["kofta",150,271,26,0,18,0],RICE]},
+ {id:"l6",t:"l",name:"ساندوتش برجر",idea:"برجر في العيش مع المشروم والبصل.",items:[["burger",150,294,23.55,3,20.1,1.5],BR70,MUSH,ONI]},
+ {id:"l7",t:"l",name:"ساندوتش كبدة",idea:"كبدة في العيش.",items:[["liver",150,286.5,43.5,7.5,7.5,0],BR70]},
+ {id:"l8",t:"l",name:"كشري",idea:"طبق كشري، اوزن 250 جرام بس.",items:[["koshary",250,520.3,13.81,66.31,21.79,8.2]]},
+ {id:"l9",t:"l",name:"بطاطس مطبوخة وأرز",idea:"بطاطس مطبوخة مع أرز أبيض وجزر.",items:[["cookedpotato",150,223.5,3.45,30.15,10.5,3.37],RICE,CAR70]},
+ {id:"l10",t:"l",name:"حمام وأرز",idea:"حمام مع أرز أبيض.",pdfTotal:501.5,items:[["pigeon",200,282,43.6,0.6,10.2,0],["rice",150,193.5,3.99,41.85,0.42,0]]},
+ {id:"l11",t:"l",name:"بيض ومكرونة بالصلصة",idea:"مكرونة بالصلصة والفلفل الألوان مع البيض.",items:[["eggs",150,220.5,18.87,1.16,14.91,0],PASTA125,TP,PEP]},
+ {id:"l12",t:"l",name:"مكرونة بالبشاميل",idea:"مكرونة بالبشاميل 250 جرام مع جزر.",items:[["bechamel",250,500.3,29.75,34.3,26.45,2],CAR70]},
+ {id:"l13",t:"l",name:"بط وأرز وخضار",idea:"صدر بط مع أرز أبيض وفاصوليا خضراء وجزر.",items:[["duck",100,201,23.5,0,11,0],RICE,["greenbeans",50,15.5,0.9,3.5,0.05,1.5],CAR70]}
+];
+
+// ---- الحالة ----
+// اسم العميل الثابت من اللينك، وكل عميل ليه تخزين محلي لوحده
+const PLAN_KEY = (()=>{ const m=/\/c\/([a-z0-9][a-z0-9_-]*)-[a-z]{3}\d{4}(\/|$)/i.exec(location.pathname); return m ? m[1].toLowerCase() : "default"; })();
+const KEY = "nezamy-" + PLAN_KEY;
+let type = "b";
+const sel = {b:new Set(), l:new Set()};   // كل تاب ليه اختياراته
+const selDay = {b:today(), l:today()};     // اختيارات كل تاب ليوم واحد
+let hist = {};                            // {"2026-11-21": {b:{id,name,kcal}|null, l:{...}|null}}
+let have = sel.b;
+try{
+  const s = JSON.parse(localStorage.getItem(KEY)||"{}");
+  for(const t of ["b","l"]){
+    const x = s.sel && s.sel[t];
+    if(x && Array.isArray(x.ids) && x.day === today()){ x.ids.filter(k=>ING[k]).forEach(k=>sel[t].add(k)); }
+  }
+  if(s.hist && typeof s.hist==="object") hist = s.hist;
+}catch(e){}
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify({sel:{b:{day:selDay.b,ids:[...sel.b]}, l:{day:selDay.l,ids:[...sel.l]}}, hist})); }catch(e){}
+}
+function today(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function resetSelectionsForDay(){
+  const day = today();
+  if(selDay.b===day && selDay.l===day) return false;
+  sel.b.clear(); sel.l.clear();
+  selDay.b = selDay.l = day;
+  save();
+  return true;
+}
+const pickId = t => { const r = hist[today()]; return (r && r[t] && r[t].id) || null; };
+
+const $ = id => document.getElementById(id);
+const fmt = n => (Math.round(n*10)/10).toString();
+const sum = (m,i) => m.items.reduce((a,x)=>a+x[i],0);
+const byId = id => MEALS.find(m=>m.id===id);
+
+function renderPicker(){
+  const used = new Set();
+  MEALS.forEach(m=>m.items.forEach(x=>used.add(x[0])));
+  let h = "";
+  for(const [c,label] of CATS){
+    const ids = Object.keys(ING).filter(k=>ING[k][1]===c && used.has(k));
+    if(!ids.length) continue;
+    h += '<div class="cat"><div class="cat-name">'+label+'</div><div class="chips">';
+    for(const k of ids) h += '<button type="button" class="chip" id="chip-'+k+'" data-k="'+k+'" aria-pressed="'+have.has(k)+'">'+ING[k][0]+'</button>';
+    h += '</div></div>';
+  }
+  $("picker").innerHTML = '<div style="display:flex;flex-direction:column;gap:12px">'+h+'</div>';
+}
+
+const W = k => ("pcr".includes(ING[k][1]) ? 2 : 1); // الصنف الأساسي وزنه ضعف الخضار والإضافات
+
+function card(m, s, rank){
+  const picked = pickId(type)===m.id;
+  let head, extra = "";
+  if(s){
+    const pct = Math.round(s.score*100);
+    head = '<span class="rank">'+rank+'</span>'+
+      '<div class="title">'+(rank===1?'<div class="best">الأقرب لاختياراتك</div>':'')+'<h3>'+m.name+'</h3></div>'+
+      '<div class="pct">'+pct+'%<small>توافق</small></div>';
+    const miss = s.missing.map(x=>ING[x[0]][0].replace(/ \(.*\)/,""));
+    extra = '<div class="bar"><i style="width:'+pct+'%"></i></div>'+
+      '<div class="meta">بتستخدم '+s.hit+' من '+s.sel+' من اختياراتك · '+
+      (miss.length ? '<span class="warn">ناقص: '+miss.join("، ")+'</span>' : '<span class="ok">كل أصنافها متوفرة</span>')+'</div>';
+  } else head = '<div class="title"><h3>'+m.name+'</h3></div>';
+  let li = "";
+  for(const x of m.items){
+    const miss = s && !have.has(x[0]);
+    li += '<li class="'+(miss?'miss':'')+'"><span class="nm">'+ING[x[0]][0]+(miss?'<span class="tag">مش متوفر</span>':'')+'</span>'+
+          '<span class="grams">'+x[1]+' <small>جرام</small></span><span class="kcal">'+fmt(x[2])+' سعر</span></li>';
+  }
+  const macro = '<div class="macro"><span>بروتين <b>'+fmt(sum(m,3))+'</b></span><span>كارب <b>'+fmt(sum(m,4))+
+    '</b></span><span>دهون <b>'+fmt(sum(m,5))+'</b></span><span>ألياف <b>'+fmt(sum(m,6))+'</b></span></div>';
+  const note = m.pdfTotal ? '<div class="note">مجموع الأصناف '+fmt(sum(m,2))+' سعر، والمكتوب في الملف '+m.pdfTotal+'. راجعها مع الدكتور.</div>' : '';
+  return '<article class="card'+(rank===1?' top':'')+(picked?' picked':'')+'">'+
+    '<div class="card-head">'+head+'</div>'+extra+
+    '<div class="card-tools"><span class="meal-energy"><b>'+fmt(sum(m,2))+'</b> سعر حراري</span>'+
+    '<button type="button" class="pick" data-pick="'+m.id+'" aria-pressed="'+picked+'">'+(picked?'✓ متسجلة · إلغاء':'سجّل '+(type==="b"?'وجبة 1':'وجبة 2'))+'</button></div>'+
+    '<details class="meal-details" data-meal="'+m.id+'"><summary>المكونات والجرامات</summary><ul class="items">'+li+'</ul>'+
+    '<div class="idea">'+m.idea+'</div>'+macro+note+'</details></article>';
+}
+
+function renderResults(){
+  const meals = MEALS;
+  // اختياراتك اللي ليها علاقة بأي وجبة
+  const sel = [...have].filter(k=>meals.some(m=>m.items.some(x=>x[0]===k)));
+  $("filter-count").textContent = sel.length ? "("+sel.length+")" : "";
+  if(!sel.length){
+    $("status").textContent = "كل الوجبات ("+meals.length+")";
+    $("results").innerHTML = '<div class="cards">'+meals.map(m=>card(m,null,0)).join("")+'</div>';
+    return;
+  }
+  const selW = sel.reduce((a,k)=>a+W(k),0);
+  const scored = meals.map(m=>{
+    const missing = m.items.filter(x=>!have.has(x[0]));
+    const hitItems = m.items.filter(x=>have.has(x[0]));
+    const hitW = hitItems.reduce((a,x)=>a+W(x[0]),0), mealW = m.items.reduce((a,x)=>a+W(x[0]),0);
+    // 70% قد إيه الوجبة كاملة من المتوفر + 30% قد إيه بتستخدم من اختياراتك
+    const score = 0.7*(hitW/mealW) + 0.3*(hitW/selW);
+    return {m, missing, hit:hitItems.length, sel:sel.length, score, missK:missing.reduce((a,x)=>a+x[2],0)};
+  }).filter(s=>s.hit>0).sort((a,b)=>b.score-a.score || a.missK-b.missK);
+  $("status").innerHTML = scored.length+" وجبة مرتبين من الأقرب لاختياراتك للأبعد"+
+    '<div class="hint">نسبة التوافق بتحسب قد إيه الوجبة كاملة من المتوفر، وقد إيه بتستخدم من اختياراتك. الأصناف الأساسية وزنها أكبر من الخضار والإضافات.</div>';
+  $("results").innerHTML = '<div class="cards">'+scored.map((s,i)=>card(s.m,s,i+1)).join("")+'</div>';
+}
+
+function renderDay(){
+  const date=$("day-date");
+  date.dateTime=today();
+  date.textContent=new Date().toLocaleDateString("ar-EG",{weekday:"long",day:"numeric",month:"long"});
+  const r = hist[today()] || {};
+  let total = 0;
+  for(const t of ["b","l"]){
+    const x = r[t];
+    $("day-"+t).textContent = x ? x.name+" · "+fmt(x.kcal)+" سعر" : "لسه ما اخترتش";
+    if(x) total += x.kcal;
+  }
+  $("day-sum").textContent = fmt(total);
+}
+
+const dayTotal = r => ((r.b&&r.b.kcal)||0) + ((r.l&&r.l.kcal)||0);
+function renderHistory(){
+  const days = Object.keys(hist).sort().reverse();
+  const where = {checking:"بنتحقق من حسابك…", off:"السجل محفوظ على المتصفح ده بس.",
+                 out:"السجل دلوقتي على المتصفح ده بس. سجّل دخول عشان يتحفظ على حسابك.",
+                 wait:"بحمّل السجل المحفوظ على حسابك…",
+                 on:"السجل مرتبط بحسابك.",
+                 err:"آخر تعديل ما وصلش لحسابك. اتأكد من الإنترنت، وهو محفوظ على المتصفح ده لحد ما يوصل."}[dbState];
+  renderAccount();
+  $("hist-where").textContent = where;
+  if(!days.length){
+    $("hist-stats").innerHTML = "";
+    $("hist-table").innerHTML = '<div class="empty">لسه مفيش أيام. اختار وجبة من تاب وجبة 1 أو وجبة 2 وهتتسجل هنا.</div>';
+    return;
+  }
+  const avg = days.reduce((a,d)=>a+dayTotal(hist[d]),0)/days.length;
+  $("hist-stats").innerHTML = '<span>عدد الأيام <b>'+days.length+'</b></span><span>متوسط اليوم <b>'+fmt(avg)+'</b> سعر</span>';
+  const list=$("hist-table");
+  list.replaceChildren();
+  for(const d of days){
+    const r=hist[d];
+    const entry=document.createElement("article");
+    entry.className="log-day";
+    entry.innerHTML='<div class="history-head"><h3></h3><button type="button" class="del">حذف اليوم</button></div>'+
+      '<table><thead><tr><th scope="col">وجبة 1</th><th scope="col">وجبة 2</th></tr></thead>'+
+      '<tbody><tr><td></td><td></td></tr></tbody></table>'+
+      '<div class="log-total"><span>إجمالي اليوم</span><b></b></div>';
+    let label=d;
+    try{ label=new Date(d+"T00:00").toLocaleDateString("ar-EG",{weekday:"long",day:"numeric",month:"long",year:"numeric"}); }catch(e){}
+    const heading=entry.querySelector("h3");
+    heading.id="log-date-"+d;
+    heading.textContent=(d===today()?"النهارده · ":"")+label;
+    entry.querySelector("table").setAttribute("aria-labelledby",heading.id);
+    const remove=entry.querySelector("button");
+    remove.dataset.del=d;
+    remove.setAttribute("aria-label","حذف يوم "+label);
+    const cells=entry.querySelectorAll("td");
+    [r.b,r.l].forEach((meal,i)=>{
+      const cell=cells[i];
+      cell.textContent=meal ? meal.name : "لسه ما اتسجلش";
+      if(meal){
+        const calories=document.createElement("small");
+        calories.textContent=fmt(meal.kcal)+" سعر";
+        cell.append(calories);
+      }else cell.className="missing";
+    });
+    entry.querySelector(".log-total b").textContent=fmt(dayTotal(r))+" سعر";
+    list.append(entry);
+  }
+}
+
+function renderAll(){
+  resetSelectionsForDay();
+  document.querySelectorAll(".tab").forEach(b=>{
+    const selected=b.dataset.type===type;
+    b.setAttribute("aria-selected",selected);
+    b.tabIndex=selected ? 0 : -1;
+  });
+  const isH = type==="h";
+  $("pick-panel").hidden = $("status").hidden = $("results").hidden = isH;
+  $("history").hidden = !isH;
+  if(isH) renderHistory();
+  else{
+    have = sel[type];
+    renderPicker(); renderResults();
+  }
+  renderDay();
+}
+
+// ---- حفظ السجل على حساب المستخدم (Firebase)، ولو مش متاح يفضل على المتصفح ----
+// اسم العميل الثابت بييجي من اللينك: /c/<username>-<mon><yyyy>/ ، فالسجل بيكمل معاه لما الشهر يتغير
+let cloud = null, cloudUser = null, dbState = "checking", firstSnap = true, unsub = null;
+
+function refreshViews(){
+  if(type==="h") renderHistory();
+  else{
+    for(const button of $("results").querySelectorAll("[data-pick]")){
+      const meal=byId(button.dataset.pick), picked=pickId(type)===meal.id;
+      button.setAttribute("aria-pressed",picked);
+      button.textContent=picked ? "✓ متسجلة · إلغاء" : "سجّل "+(type==="b"?"وجبة 1":"وجبة 2");
+      button.closest(".card").classList.toggle("picked",picked);
+    }
+  }
+  renderDay();
+}
+function renderAccount(){
+  $("signin-banner").hidden = dbState!=="out";
+  $("acct").hidden = !cloudUser;
+  $("account-email").textContent = cloudUser?.email || "";
+}
+function authError(message){
+  $("auth-error").hidden=!message;
+  $("auth-error").textContent=message;
+}
+window.nezamyCloudUnavailable=()=>{ dbState="off"; refreshViews(); };
+function pushDay(d){
+  if(!(cloud && cloudUser)) return;
+  const r = hist[d];
+  const job = r ? cloud.setDay(cloudUser.uid, PLAN_KEY, d, {date:d, b:r.b||null, l:r.l||null, total:dayTotal(r)})
+                : cloud.deleteDay(cloudUser.uid, PLAN_KEY, d);
+  job.then(()=>{ if(dbState==="err"){ dbState="on"; refreshViews(); } })
+     .catch(()=>{ dbState="err"; refreshViews(); });
+}
+// بينادي عليها سكريبت Firebase اللي تحت لما يجهز
+window.nezamyCloudReady = api => {
+  cloud = api;
+  api.onUser(u=>{
+    if(unsub){ unsub(); unsub = null; }
+    cloudUser = u;
+    authError("");
+    if(!u){ dbState = "out"; refreshViews(); return; }
+    dbState = "wait"; firstSnap = true; refreshViews();
+    unsub = api.subscribe(u.uid, PLAN_KEY, remote=>{
+      if(firstSnap){
+        // أول مرة بعد الدخول: الأيام اللي على المتصفح ده بس تترفع للحساب
+        firstSnap = false;
+        const localOnly = Object.keys(hist).filter(d=>!remote[d]);
+        const merged = Object.assign({}, remote);
+        localOnly.forEach(d=>{ merged[d] = hist[d]; });
+        hist = merged; save();
+        localOnly.forEach(pushDay);
+      } else { hist = remote; save(); }
+      if(dbState!=="err") dbState = "on";
+      refreshViews();
+    }, ()=>{ dbState = "err"; refreshViews(); });
+  });
+};
+document.addEventListener("click", e=>{
+  if(!cloud) return;
+  if(e.target.closest("[data-signin]")){
+    authError("");
+    const button=e.target.closest("[data-signin]");
+    button.disabled=true;
+    cloud.signIn().catch(()=>authError("تسجيل الدخول ما كملش. جرّب تاني واسمح بنافذة جوجل لو المتصفح منعها."))
+      .finally(()=>{ button.disabled=false; });
+  } else if(e.target.closest("[data-signout]")){
+    cloud.signOut().then(()=>{ hist = {}; save(); refreshViews(); }).catch(()=>authError("تعذّر تسجيل الخروج. جرّب تاني."));   // ما نسيبش سجل حد على جهاز مشترك
+  }
+});
+
+document.querySelector(".tabs").addEventListener("click",e=>{
+  const b = e.target.closest(".tab"); if(!b) return;
+  const nav=document.querySelector(".tabs");
+  const scrolled = nav.getBoundingClientRect().top<=1 && window.scrollY>0;
+  type = b.dataset.type; renderAll();
+  if(scrolled) window.scrollBy(0,nav.previousElementSibling.getBoundingClientRect().bottom + parseFloat(getComputedStyle(nav.parentElement).rowGap));
+});
+document.querySelector(".tabs").addEventListener("keydown",e=>{
+  const tabs=[...e.currentTarget.querySelectorAll(".tab")];
+  const index=tabs.indexOf(e.target);
+  const next={ArrowLeft:(index+1)%tabs.length,ArrowRight:(index+tabs.length-1)%tabs.length,Home:0,End:tabs.length-1}[e.key];
+  if(index<0 || next===undefined) return;
+  e.preventDefault();
+  tabs[next].focus({preventScroll:true});
+  tabs[next].click();
+});
+$("picker").addEventListener("click",e=>{
+  const c = e.target.closest(".chip"); if(!c) return;
+  const reset = resetSelectionsForDay();
+  const k = c.dataset.k;
+  have.has(k) ? have.delete(k) : have.add(k);
+  selDay[type] = today();
+  c.setAttribute("aria-pressed", have.has(k));
+  save();
+  if(reset) renderAll(); else renderResults();
+});
+$("results").addEventListener("click",e=>{
+  const p = e.target.closest("[data-pick]"); if(!p) return;
+  const m = byId(p.dataset.pick), d = today();
+  const rec = Object.assign({b:null,l:null}, hist[d]);
+  rec[type] = pickId(type)===m.id ? null : {id:m.id, name:m.name, kcal:Math.round(sum(m,2)*10)/10};
+  if(!rec.b && !rec.l) delete hist[d]; else hist[d] = rec;
+  save(); pushDay(d); refreshViews();
+});
+$("history").addEventListener("click",e=>{
+  const b = e.target.closest("[data-del]"); if(!b) return;
+  delete hist[b.dataset.del];
+  save(); pushDay(b.dataset.del); renderHistory(); renderDay();
+});
+$("clear").addEventListener("click",()=>{ sel[type].clear(); selDay[type]=today(); save(); renderAll(); });
+
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="visible" && resetSelectionsForDay()) renderAll();
+});
+
+const root = document.documentElement;
+const curTheme = () => root.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+const themeLabel = () => { $("theme").textContent = curTheme()==="dark" ? "☀ فاتح" : "☾ داكن"; };
+try{ const t = localStorage.getItem("nezamy-theme"); if(t==="dark"||t==="light") root.dataset.theme = t; }catch(e){}
+$("theme").addEventListener("click",()=>{
+  const t = curTheme()==="dark" ? "light" : "dark";
+  root.dataset.theme = t;
+  try{ localStorage.setItem("nezamy-theme",t); }catch(e){}
+  themeLabel();
+});
+themeLabel();
+
+renderAll();
+</script>
+
+<!-- لوحة النشر بتضمّن إعدادات Firebase هنا. -->
+
+<script>window.NEZAMY_FIREBASE_CONFIG = {"apiKey":"AIzaSyCk7qO85kW690JxPFiwYjVjvpla0hG1Leg","authDomain":"nezamyapp-dfe26.firebaseapp.com","projectId":"nezamyapp-dfe26","storageBucket":"nezamyapp-dfe26.firebasestorage.app","messagingSenderId":"261766933967","appId":"1:261766933967:web:3eeefad19164e3ca56f6ba"};</script><script type="module">
+const cfg = window.NEZAMY_FIREBASE_CONFIG;
+if(cfg && cfg.apiKey && window.nezamyCloudReady){
+  try{
+    const base = "https://www.gstatic.com/firebasejs/10.12.2/";
+    const [appM, authM, fs] = await Promise.all([import(base+"firebase-app.js"), import(base+"firebase-auth.js"), import(base+"firebase-firestore.js")]);
+    const app = appM.initializeApp(cfg);
+    const auth = authM.getAuth(app);
+    let db;
+    try{ db = fs.initializeFirestore(app, {localCache: fs.persistentLocalCache({tabManager: fs.persistentMultipleTabManager()})}); }
+    catch(e){ db = fs.getFirestore(app); }
+    const days = (uid, plan) => fs.collection(db, "users", uid, "plans", plan, "days");
+    window.nezamyCloudReady({
+      signIn: () => authM.signInWithPopup(auth, new authM.GoogleAuthProvider()),
+      signOut: () => authM.signOut(auth),
+      onUser: cb => authM.onAuthStateChanged(auth, cb),
+      subscribe: (uid, plan, next, err) => fs.onSnapshot(days(uid, plan), snap => {
+        const out = {};
+        snap.forEach(d => { const x = d.data(); out[d.id] = {b: x.b || null, l: x.l || null}; });
+        next(out);
+      }, err),
+      setDay: (uid, plan, d, data) => fs.setDoc(fs.doc(days(uid, plan), d), data),
+      deleteDay: (uid, plan, d) => fs.deleteDoc(fs.doc(days(uid, plan), d))
+    });
+  }catch(e){ window.nezamyCloudUnavailable(); console.error("Nezamy cloud sync failed to start", e); }
+}else{ window.nezamyCloudUnavailable(); }
+</script>
+
+
+</body></html>
